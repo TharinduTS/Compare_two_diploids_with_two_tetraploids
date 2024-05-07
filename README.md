@@ -12,6 +12,13 @@
  zcat file.vcf.gz | vcf-to-tab > out.tab
 ```
 Then used this python script to process tab file
+# Run it like this
+
+You can find example files for each of the commandas below
+
+```bash
+python3 compare_pops_final.py Testing_2.tab my_samp_list_with_sex_and_pop_2.txt comparison_list_2.txt summary.txt
+```
 
 ```python
 #!/usr/bin/env python3
@@ -452,6 +459,34 @@ for combo in range(0,len(combination_list)) :
             summary_df.to_csv(summary_saving_name, sep="\t",index=False)
 
 ```
+
+#testing_2.tab
+```txt
+#CHROM	POS	REF	F_Ghana_WZ_BJE4687_combined__sorted.bam	F_IvoryCoast_xen228_combined__sorted.bam	XT7_WY_no_adapt__sorted.bam	all_ROM19161_sorted.bam	all_calcaratus_sorted.bam	mello_GermSeq_sorted.bam
+Chr10	707	A/A	A/A	A/A	A/A	A/A	A/A	A/A
+Chr10	708	A/A	A/A	A/A	T/T	A/A	T/A	A/A
+Chr10	709	A/A	A/A	A/A	T/T	A/A	T/A	A/A
+Chr10	710	A/A	A/A	A/A	T/T	A/A	T/A	T/A
+Chr10	711	A/A	T/T	A/A	T/T	A/A	T/A	A/A
+Chr10	712	A/A	T/T	A/A	T/T	A/A	T/A	A/G
+```
+
+#my_samp_list_with_sex_and_pop_2.txt
+```txt
+F_Ghana_WZ_BJE4687_combined__sorted.bam	F	Tropicalis
+F_IvoryCoast_xen228_combined__sorted.bam	F	other
+XT7_WY_no_adapt__sorted.bam	M	other
+all_ROM19161_sorted.bam	F	Liberia
+all_calcaratus_sorted.bam	F	Calcaratus
+mello_GermSeq_sorted.bam	F	other
+```
+#comparison_list_2.txt
+
+```txt
+1	2	3	4
+F_Ghana_WZ_BJE4687_combined__sorted.bam	XT7_WY_no_adapt__sorted.bam	all_calcaratus_sorted.bam	mello_GermSeq_sorted.bam
+```
+# summary.txt is just a name for summary file
 
 
 
