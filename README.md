@@ -1,5 +1,6 @@
 # Compare_two_diploids_with_two_tetraploids
 
+# ***** THIS IS FOR NOT TOO LARGE FILES. SEE THE END FOR LARGE FILES*********
 # Prepare input file
 ```
  module load tabix
@@ -487,6 +488,193 @@ mello_GermSeq_sorted.bam	F	other
 F_Ghana_WZ_BJE4687_combined__sorted.bam	XT7_WY_no_adapt__sorted.bam	all_calcaratus_sorted.bam	mello_GermSeq_sorted.bam
 ```
 # summary.txt is just a name for summary file
+
+# **************** FOR LARGE FILES **********************
+
+First I splitted tab file into smaller files
+
+```bash
+split --numeric-suffixes=1 -l 6 combined_chrs.tab "combined_chrs_part"
+```
+then added headers
+```
+for i in combined_chrs_part*; do echo -e "#CHROM\tPOS\tREF\tF_Ghana_WZ_BJE4687_combined__sorted.bam\tF_IvoryCoast_xen228_combined__sorted.bam\tF_Nigeria_EUA0331_combined__sorted.bam\tF_Nigeria_EUA0333_combined__sorted.bam\tF_SierraLeone_AMNH17272_combined__sorted.bam\tF_SierraLeone_AMNH17274_combined__sorted.bam\tJBL052_concatscafs_sorted.bam\tM_Ghana_WY_BJE4362_combined__sorted.bam\tM_Ghana_ZY_BJE4360_combined__sorted.bam\tM_Nigeria_EUA0334_combined__sorted.bam\tM_Nigeria_EUA0335_combined__sorted.bam\tM_SierraLeone_AMNH17271_combined__sorted.bam\tM_SierraLeone_AMNH17273_combined__sorted.bam\tXT10_WZ_no_adapt._sorted.bam\tXT11_WW_trim_no_adapt_scafconcat_sorted.bam\tXT1_ZY_no_adapt._sorted.bam\tXT7_WY_no_adapt__sorted.bam\tall_ROM19161_sorted.bam\tall_calcaratus_sorted.bam\tmello_GermSeq_sorted.bam" | cat - ${i} >/tmp/out && mv /tmp/out ${i} ;done
+```
+Then I had to rename first 9 files to get rid of '0' at the begining of combination files
+
+```
+mv file01 file1
+```
+Then I made a directory for outputs
+```
+mkdir outputs
+```
+I used lists of individuals to be used as each of the populations and python script below to come up with all possible combinations
+
+example 
+s_list_1.txt
+
+```txt
+F_Ghana_WZ_BJE4687_combined__sorted.bam
+F_IvoryCoast_xen228_combined__sorted.bam
+F_Nigeria_EUA0331_combined__sorted.bam
+F_Nigeria_EUA0333_combined__sorted.bam
+F_SierraLeone_AMNH17272_combined__sorted.bam
+F_SierraLeone_AMNH17274_combined__sorted.bam
+M_Ghana_WY_BJE4362_combined__sorted.bam
+M_Ghana_ZY_BJE4360_combined__sorted.bam
+M_Nigeria_EUA0334_combined__sorted.bam
+M_Nigeria_EUA0335_combined__sorted.bam
+M_SierraLeone_AMNH17271_combined__sorted.bam
+M_SierraLeone_AMNH17273_combined__sorted.bam
+XT10_WZ_no_adapt._sorted.bam
+XT11_WW_trim_no_adapt_scafconcat_sorted.bam
+XT1_ZY_no_adapt._sorted.bam
+XT7_WY_no_adapt__sorted.bam
+all_ROM19161_sorted.bam
+```
+combination_generator.py
+
+```python
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May  8 11:48:45 2024
+
+@author: Terry
+"""
+
+# get all the possible populatiopn combinations
+
+import array
+import os
+import inspect
+import os
+import pandas as pd
+import numpy as np
+import csv
+import ast
+from numpy.random import randint
+from itertools import chain
+import sys
+import itertools
+
+# to get the current working directory
+#directory = r"C:\Users\thari\OneDrive - McMaster University\for_lab_and_research\Tharindu_on_Mac\lab\python_projects\hetero_comparison_4_pops\pop_combos"
+directory = "/Users/Tharindu/Library/CloudStorage/OneDrive-McMasterUniversity/for_lab_and_research/Tharindu_on_Mac/lab/python_projects/hetero_comparison_4_pops/pop_combos"
+os. chdir(directory)
+print('working in', directory)
+print('\n\n\n\n\n')
+
+
+# ask for population lists to use as pop1 , 2 and 3
+
+s_list_1=input('\n Please enter the file name with first population list\n')
+s_list_2=input('\n Please enter the file name with second population list\n')
+s_list_3=input('\n Please enter the file name with third population list\n')
+s_list_4=input('\n Please enter the file name with third population list\n')
+
+
+file1 = open(s_list_1, "r")
+list1=list(csv.reader(file1, delimiter="\t"))
+list1=list(chain.from_iterable(list1))
+
+file2 = open(s_list_2, "r")
+list2=list(csv.reader(file2, delimiter="\t"))
+list2=list(chain.from_iterable(list2))
+
+
+file3 = open(s_list_3, "r")
+list3=list(csv.reader(file3, delimiter="\t"))
+list3=list(chain.from_iterable(list3))
+
+file4 = open(s_list_4, "r")
+list4=list(csv.reader(file4, delimiter="\t"))
+list4=list(chain.from_iterable(list4))
+
+pop_lists=[list1,list2,list3,list4]
+
+#pop_lists=[my_samp_list,my_samp_list,my_samp_list]
+
+
+#get all combinations
+all_pop_combinations=list(itertools.product(*pop_lists))
+
+combination_list=all_pop_combinations
+
+
+# #****** This filtering is only if popa*popb is same as popb*popa
+# #remove duplicates
+# combination_list=list({*map(tuple, map(sorted, all_pop_combinations))})
+
+# *********************************************
+
+# #convert list to df
+combination_list=pd.DataFrame(combination_list)
+
+# #****** This filtering is only if popa*popb is same as popb*popa
+# #drop cols rows with equal vals
+# combination_list = combination_list.drop(combination_list[combination_list[0] == combination_list[1]].index)
+
+
+# *********************************************
+print('Saving a list of all possible combinations')
+
+
+combination_list.to_csv('combination_list.tsv',sep='\t',index=False)
+```
+Then I had to split the resulting combination file into smaller ones
+```bash
+split --numeric-suffixes=1 -l 6 combination_list.tsv "combination"
+```
+and added headers
+```
+for i in combination*; do echo -e "0\t1\t2\t3" | cat - ${i} >/tmp/out && mv /tmp/out ${i} ;done
+```
+
+# *** And removed the extra header in Combination1
+
+Then I wrote 11 different bash scripts to run all individual combinations with each of the tab files 
+
+Example 
+
+run_comparisons_part_1.sh
+
+```bash
+#!/bin/sh
+#SBATCH --job-name=bwa_505
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=24:00:00
+#SBATCH --mem=64gb
+#SBATCH --output=comp_pop.%J.out
+#SBATCH --error=comp_pop.%J.err
+#SBATCH --account=def-ben
+#SBATCH --array=1-49
+
+#SBATCH --mail-user=premacht@mcmaster.ca
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-type=END
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=REQUEUE
+#SBATCH --mail-type=ALL
+
+module load StdEnv/2020 python/3.8.2
+virtualenv --no-download ~/ENV
+source ~/ENV/bin/activate
+pip install --no-index --upgrade pip
+pip install pandas --no-index
+
+python compare_pops_final.py ./../combined_chrs_more_efficient/combined_chrs_part01 ./../combined_chrs_more_efficient/my_sample_list_with_sex_and_pop.txt ./combos/combination${SLURM_ARRAY_TASK_ID} ./summary_part1_${SLURM_ARRAY_TASK_ID}
+```
+then ran them all 
+``` bash
+for i in $(seq 1 11); do sbatch run_comparisons_part_${i}.sh;done
+```
+
+
+
+
+
 
 
 
