@@ -155,12 +155,18 @@ for combo in range(0,len(combination_list)) :
             # read selected columns
             file_with_locs=pd.read_csv(inputfile, sep='\t',usecols=['#CHROM','POS',p1,p2,p3,p4])
             
+            # rearrange populations to make sure they are in the proper order
+            file_with_locs = file_with_locs.reindex(['#CHROM','POS',p1,p2,p3,p4], axis=1)
+            
+            # save to check
+            file_with_locs.to_csv('file_with_locs',sep='\t',index=False)
+           
+            
             #rename
             file_with_locs.columns=['chr','pos','p1','p2','p3','p4']
             
             # print('saving temp csv file')
-            # #remove headers
-            # file_with_locs.to_csv('temp.tab', sep='\t', index=False)
+            
             
             
             
@@ -421,34 +427,36 @@ for combo in range(0,len(combination_list)) :
             
             b_shared_with_c=b_eq_c_sub1+b_eq_c_sub2
             
-             
-            # for readable copy*******
-            
-            # b_eq_c_sub1=final_dataset.apply(lambda x: x.p2 == x.p3_var1 != x.p1 !=x.p4, axis = 1)
-            # b_eq_c_sub2=final_dataset.apply(lambda x: x.p2 == x.p3_var2 != x.p1 !=x.p4, axis = 1)
-            
-            # b_eq_c_sub1.to_csv('b_eq_c_sub1_db.tsv', sep="\t")
-            # b_eq_c_sub2.to_csv('b_eq_c_sub2_db.tsv', sep="\t")
-            
-            # ************
-            
-            # ************
             
             b_eq_d_sub1=final_dataset.apply(lambda x: x.p2 == x.p4_var1 != x.p1 and x.p2 !=x.p4_var2 and x.p2 !=x.p3_var1 and x.p2 !=x.p3_var2 and x.p4_var2==x.p1, axis = 1).value_counts().get(True, 0)
             b_eq_d_sub2=final_dataset.apply(lambda x: x.p2 == x.p4_var2 != x.p1 and x.p2 !=x.p4_var1 and x.p2 !=x.p3_var1 and x.p2 !=x.p3_var2 and x.p4_var1==x.p1,axis = 1).value_counts().get(True, 0)
             
             b_shared_with_d=b_eq_d_sub1+b_eq_d_sub2
             
+            # extract selected sites for proof read
             
-            # for readable copy*******
+            # *******THIS IS ONLU FOR TESTING. COMMENT OUT WHEN RUNNING TO INCREASE EFFICIENCY*******
             
-            # b_eq_d_sub1=final_dataset.apply(lambda x: x.p2 == x.p4_var1 != x.p1 !=x.p3, axis = 1)
-            # b_eq_d_sub2=final_dataset.apply(lambda x: x.p2 == x.p4_var2 != x.p1 !=x.p3, axis = 1)
+            # b_eq_c_sites_1=final_dataset.apply(lambda x: x.p2 == x.p3_var1 != x.p1 and x.p2 !=x.p3_var2 and x.p2 !=x.p4_var1 and x.p2 !=x.p4_var2 and x.p3_var2==x.p1, axis = 1)
+            # b_eq_c_sites_2=final_dataset.apply(lambda x: x.p2 == x.p3_var2 != x.p1 and x.p2 !=x.p3_var1 and x.p2 !=x.p4_var1 and x.p2 !=x.p4_var2 and x.p3_var1==x.p1, axis = 1)
             
-            # b_eq_d_sub1.to_csv('b_eq_d_sub1_db.tsv', sep="\t")
-            # b_eq_d_sub2.to_csv('b_eq_d_sub2_db.tsv', sep="\t")
+            # # use or logic to add two lists together
+            # b_eq_c_all_sites=np.logical_or(b_eq_c_sites_1,b_eq_c_sites_2)
             
-            # ************
+            # b_eq_d_sites_1=final_dataset.apply(lambda x: x.p2 == x.p4_var1 != x.p1 and x.p2 !=x.p4_var2 and x.p2 !=x.p3_var1 and x.p2 !=x.p3_var2 and x.p4_var2==x.p1, axis = 1)
+            # b_eq_d_sites_2=final_dataset.apply(lambda x: x.p2 == x.p4_var2 != x.p1 and x.p2 !=x.p4_var1 and x.p2 !=x.p3_var1 and x.p2 !=x.p3_var2 and x.p4_var1==x.p1,axis = 1)
+            
+            # # use or logic to add two lists together
+            # b_eq_d_all_sites=np.logical_or(b_eq_d_sites_1,b_eq_d_sites_2)
+            
+            # final_dataset["b_eq_c_all_sites"]=b_eq_c_all_sites
+            # final_dataset["b_eq_d_all_sites"]=b_eq_d_all_sites
+            
+            # final_dataset_save_name=p1+"_and_"+p2+"full_final_dataset.txt"
+            
+            # # saving as tsv file 
+            # final_dataset.to_csv(final_dataset_save_name, sep="\t",index=False)
+            #***************************************************
             
             print("b_shared_with_c in "+str(b_shared_with_c)+'\n'+'b_shared_with_d in '+str(b_shared_with_d))
             
@@ -458,6 +466,7 @@ for combo in range(0,len(combination_list)) :
             
             # saving as tsv file 
             summary_df.to_csv(summary_saving_name, sep="\t",index=False)
+
 
 ```
 
