@@ -690,7 +690,7 @@ then downloaded summaries
 rsync -axvH --no-g --no-p premacht@graham.computecanada.ca:/scratch/premacht/python_projects_2023/hetero_comparison_4_pops/combined_summaries .
 ```
 Put them in the combined_summaries folder and plot the results with following R script
-```1R
+```R
 library("rstudioapi") 
 setwd(dirname(getActiveDocumentContext()$path))
 library(forcats)
@@ -703,6 +703,7 @@ library(rlist)
 library(insight)
 #print_color("ERROR", "red")
 library(plyr)
+library(dplyr)
 
 # first I have to load all data from different parts and add them together
 
@@ -779,23 +780,24 @@ for (part in range_of_parts) {
 write.table(my_data,file = './combined_dataframe_unarranged.tsv', sep='\t', col.names = NA)
 
 # renaming all samples
-my_data[my_data == "F_SierraLeone_AMNH17272_combined__sorted.bam"] <- "SL-F1"
-my_data[my_data == "F_SierraLeone_AMNH17274_combined__sorted.bam"] <- "SL-F2"
-my_data[my_data == "M_SierraLeone_AMNH17271_combined__sorted.bam"] <- "SL-M1"
-my_data[my_data == "M_SierraLeone_AMNH17273_combined__sorted.bam"] <- "SL-M2"
-my_data[my_data == "all_ROM19161_sorted.bam"] <- "LB-F1"
-my_data[my_data == "F_IvoryCoast_xen228_combined__sorted.bam"] <- "IC-F1"
-my_data[my_data == "F_Ghana_WZ_BJE4687_combined__sorted.bam"] <- "GH-F1"
-my_data[my_data == "M_Ghana_WY_BJE4362_combined__sorted.bam"] <- "GH-M1"
-my_data[my_data == "M_Ghana_ZY_BJE4360_combined__sorted.bam"] <- "GH-M2"
-my_data[my_data == "XT10_WZ_no_adapt._sorted.bam"] <- "LT-F1"
-my_data[my_data == "XT11_WW_trim_no_adapt_scafconcat_sorted.bam"] <- "LT-F2"
-my_data[my_data == "XT1_ZY_no_adapt._sorted.bam"] <- "LT-M1"
-my_data[my_data == "XT7_WY_no_adapt__sorted.bam"] <- "LT-M2"
-my_data[my_data == "F_Nigeria_EUA0331_combined__sorted.bam"] <- "NG-F1"
-my_data[my_data == "F_Nigeria_EUA0333_combined__sorted.bam"] <- "NG-F2"
-my_data[my_data == "M_Nigeria_EUA0334_combined__sorted.bam"] <- "NG-M1"
-my_data[my_data == "M_Nigeria_EUA0335_combined__sorted.bam"] <- "NG-M2"
+my_data[my_data == "F_SierraLeone_AMNH17272_combined__sorted.bam"] <- "SL_F1"
+my_data[my_data == "F_SierraLeone_AMNH17274_combined__sorted.bam"] <- "SL_F2"
+my_data[my_data == "M_SierraLeone_AMNH17271_combined__sorted.bam"] <- "SL_M1"
+my_data[my_data == "M_SierraLeone_AMNH17273_combined__sorted.bam"] <- "SL_M2"
+my_data[my_data == "all_ROM19161_sorted.bam"] <- "LB_F1"
+my_data[my_data == "F_IvoryCoast_xen228_combined__sorted.bam"] <- "IC_F1"
+my_data[my_data == "F_Ghana_WZ_BJE4687_combined__sorted.bam"] <- "GH_F1"
+my_data[my_data == "M_Ghana_WY_BJE4362_combined__sorted.bam"] <- "GH_M1"
+my_data[my_data == "M_Ghana_ZY_BJE4360_combined__sorted.bam"] <- "GH_M2"
+my_data[my_data == "XT10_WZ_no_adapt._sorted.bam"] <- "LT_F1"
+my_data[my_data == "XT11_WW_trim_no_adapt_scafconcat_sorted.bam"] <- "LT_F2"
+my_data[my_data == "XT1_ZY_no_adapt._sorted.bam"] <- "LT_M1"
+my_data[my_data == "XT7_WY_no_adapt__sorted.bam"] <- "LT_M2"
+my_data[my_data == "F_Nigeria_EUA0331_combined__sorted.bam"] <- "NG_F1"
+my_data[my_data == "F_Nigeria_EUA0333_combined__sorted.bam"] <- "NG_F2"
+my_data[my_data == "M_Nigeria_EUA0334_combined__sorted.bam"] <- "NG_M1"
+my_data[my_data == "M_Nigeria_EUA0335_combined__sorted.bam"] <- "NG_M2"
+
 
 my_data[my_data == "all_calcaratus_sorted.bam"] <- "Cal"
 my_data[my_data == "mello_GermSeq_sorted.bam"] <- "Mello"
@@ -805,56 +807,162 @@ my_data[my_data == "mello_GermSeq_sorted.bam"] <- "Mello"
 max_y_lim<-max(my_data$shared_with_cal,my_data$shared_with_mello)
 upper_y<-(round_any(max_y_lim,1000000))/1000000
 
-#make sample list in the correct order
+# use this section to all sample list
+sample_list<-c('SL_F1',
+               'SL_F2',
+               'SL_M1',
+               'SL_M2',
+               'LB_F1',
+               'IC_F1',
+               'GH_F1',
+               'GH_M1',
+               'GH_M2',
+               'LT_F1',
+               'LT_F2',
+               'LT_M1',
+               'LT_M2',
+               'NG_F1',
+               'NG_F2',
+               'NG_M1',
+               'NG_M2')
 
-sample_list<-c('SL-F1',
-               'SL-F2',
-               'SL-M1',
-               'SL-M2',
-               'LB-F1',
-               'IC-F1',
-               'GH-F1',
-               'GH-M1',
-               'GH-M2',
-               'LT-F1',
-               'LT-F2',
-               'LT-M1',
-               'LT-M2',
-               'NG-F1',
-               'NG-F2',
-               'NG-M1',
-               'NG-M2')
-#reverse sample list to make it upside down triange. *****This is used to adjust the no of comparisons for each sample in next step****
-sample_list_reversed<-list.reverse(sample_list)
+
+# slect data for pattern 1 and 2 for each of the individuals
+
+for (sample in sample_list) {
+
+current_Sample<-sample
+
+pat1_name<-paste(current_Sample,"_pattern1",sep = "")
+
+pat1<-subset(my_data, p1 == current_Sample)
+
+#melt df
+pat1_long <- pat1 %>%
+  pivot_longer(
+    cols = `shared_with_cal`:`shared_with_mello`,
+    names_to = "Comparison",
+    values_to = "value"
+  )
+
+
+assign(pat1_name,pat1_long)
+
+pat2_name<-paste(current_Sample,"_pattern2",sep = "")
+pat2<-subset(my_data, p2 == current_Sample)
+
+#melt df
+pat2_long <- pat2 %>%
+  pivot_longer(
+    cols = `shared_with_cal`:`shared_with_mello`,
+    names_to = "Comparison",
+    values_to = "value"
+  )
+
+assign(pat2_name,pat2_long)
+
+}
+
+# combine all pattern 1 dataframes together
+
+library(stringr)
+
+pattern_df_1<-mget(ls(pattern = '*pattern1')) %>%
+  setNames(str_replace(names(.), ".*_(\\d+)$", "pattern\\1")) %>% 
+  bind_rows(.id = "pattern") %>%
+  relocate(pattern, .after = last_col())
+
+pattern_df_2<-mget(ls(pattern = '*pattern2')) %>%
+  setNames(str_replace(names(.), ".*_(\\d+)$", "pattern\\1")) %>% 
+  bind_rows(.id = "pattern") %>%
+  relocate(pattern, .after = last_col())
+
+#have to switch p1 and p2 on pattern_df_2 to match it with pattern_df_1
+
+
+colnames(pattern_df_2)<-c("p2","p1","p3","p4","Comparison","value","pattern")
+
+#combine those two big dataframes together
+
+both_pattern_together<-mget(ls(pattern = 'pattern_df_*')) %>%
+  setNames(str_replace(names(.), ".*_(\\d+)$", "pattern_type\\1")) %>% 
+  bind_rows(.id = "pattern_type") %>%
+  relocate(pattern_type, .after = last_col())
+
+# Combine identifiers to make it easier to compare - pop1***
+
+both_pattern_together$total_comparison <- paste(both_pattern_together$Comparison,both_pattern_together$pattern_type,sep = "_")
+
+#use sample list order as levels
+
+both_pattern_together$p1=factor(both_pattern_together$p1,levels = sample_list)
+both_pattern_together$p2=factor(both_pattern_together$p2,levels = sample_list)
+
+#plot
+
+square_plot<-ggplot(both_pattern_together, aes(x=p1,y = value/1000000,fill=total_comparison)) +
+  geom_bar(position="dodge",stat='identity')+
+  facet_wrap(~ p2,nrow = 19)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  xlab("Individual B") + ylab("No. of bp (millions)")+
+  scale_fill_manual(values=c( "red","orange","purple","blue"))+
+  #ylim(0,upper_y)+
+  theme(plot.title = element_text(hjust = 0.5,size = 10))
+
+ggsave("square_plot.pdf",square_plot,width = 12,height = 11)
+
+#subset samples
+
+selected_sample_list<-c('LB_F1',
+               'GH_F1',
+               'NG_F1')
+
+subset_to_plot <- both_pattern_together[both_pattern_together$p2 %in% selected_sample_list,]
+
+#plot
+
+subset_square_plot<-ggplot(subset_to_plot, aes(x=p1,y = value/1000000,fill=total_comparison)) +
+  geom_bar(position="dodge",stat='identity')+
+  facet_wrap(~ p2,nrow = 19)+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  xlab("Individual B") + ylab("No. of bp (millions)")+
+  scale_fill_manual(values=c( "red","orange","purple","blue"))+
+  ylim(0,upper_y)+
+  theme(plot.title = element_text(hjust = 0.5,size = 10))
+
+ggsave("subset_square_plot.pdf",subset_square_plot,width = 12,height = 4)
+
 
 # now I have to change pop order and values responsible for them accordingly
 
-my_data_rearranged<-my_data[order(match(my_data$p1,sample_list)),]
+# my_data_rearranged<-my_data[order(match(my_data$p1,sample_list)),]
 
 # #make dummy list
 # new_pop_2<-rep(1: nrow(my_data))
 # new_pop_1<-rep(1: nrow(my_data))
-# 
+#
 # #not changing pop3 anyway
 # new_pop_3<-my_data$p3
-# 
+#
 # #not changing pop4 anyway
 # new_pop_4<-my_data$p4
-# 
-# 
+#
+#
 # #this does not change
 # #new_p1_eq_p2<-cal_data$Pop_A_equals_Pop_B
-# 
+#
 # #these do change
 # new_shared_with_cal<-rep(1: nrow(my_data))
 # new_shared_with_mello<-rep(1: nrow(my_data))
-# 
-# 
+#
+#
 # # now I have to change pop order and values responsible for them accordingly
-# 
+#
 # for (sample in 1:length(sample_list_reversed)) {
 #   print(sample_list_reversed[sample])
-#   
+#
 #   for (location in 1:nrow(my_data)) {
 #     if ((my_data$p1[location])==sample_list_reversed[sample]) {
 #       new_pop_1[location]<-sample_list_reversed[sample]
@@ -869,113 +977,115 @@ my_data_rearranged<-my_data[order(match(my_data$p1,sample_list)),]
 #        new_shared_with_mello[location]<-my_data$shared_with_mello[location]
 #      }
 #   }
-#   
+#
 # }
 
-my_data_rearranged<-my_data_rearranged[order(match(my_data_rearranged$p1,sample_list)),]
-my_data_rearranged<-my_data_rearranged[order(match(my_data_rearranged$p2,sample_list)),]
+# my_data_rearranged<-my_data_rearranged[order(match(my_data_rearranged$p1,sample_list)),]
+# my_data_rearranged<-my_data_rearranged[order(match(my_data_rearranged$p2,sample_list)),]
+# 
+# #saving a copy to proof read
+# 
+# write.table(my_data_rearranged,file = './my_data_arranged_df.tsv', sep='\t', col.names = NA)
+# 
+# #melt df
+# my_data_to_plot <- my_data_rearranged %>%
+#   pivot_longer(
+#     cols = `shared_with_cal`:`shared_with_mello`,
+#     names_to = "Comparison",
+#     values_to = "value"
+#   )
+# 
+# #use sample list order as levels
+# 
+# my_data_to_plot$p1=factor(my_data_to_plot$p1,levels = sample_list)
+# my_data_to_plot$p2=factor(my_data_to_plot$p2,levels = sample_list)
+# 
+# my_plot<-ggplot(my_data_to_plot, aes(x=p1,y = value/1000000,fill=Comparison)) +
+#   geom_bar(position="dodge",stat='identity')+
+#   facet_wrap(~ p2,nrow = 19)+
+#   theme_classic()+
+#   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+#   xlab("Individual B") + ylab("No. of bp (millions)")+
+#   scale_fill_manual(values=c( "red","purple"))+
+#   ylim(0,upper_y)+
+#   theme(plot.title = element_text(hjust = 0.5,size = 10))
+# 
+# ggsave("my_plot.pdf",my_plot,width = 12,height = 11)
+# 
+# # ********** remove half of the data for triangle plot *************
+# 
+# my_data_for_triangle<-my_data_to_plot
+# 
+# 
+# i<-1
+# while (i < nrow(my_data_for_triangle)) {
+#   checking_row_col_1<-my_data_for_triangle$p1[i]
+#   checking_row_col_2<-my_data_for_triangle$p2[i]
+# 
+#   j<-1
+#   while (j < nrow(my_data_for_triangle)) {
+#     print(j)
+#     j<-j+1
+#     if (checking_row_col_1==my_data_for_triangle$p2[j] & checking_row_col_2==my_data_for_triangle$p1[j]) {
+#       #list_to_remove <- append(list_to_remove, j)
+#       my_data_for_triangle <- my_data_for_triangle[-c(j), ]
+#       break
+#     }
+#   }
+#   i<-i+1
+# }
+# 
+# # extract rest of the data form my_data dataframe seperately
+# 
+# install.packages("sqldf")
+# require(sqldf)
+# 
+# my_data_for_triangle_2<-sqldf('SELECT * FROM my_data_to_plot EXCEPT SELECT * FROM my_data_for_triangle')
+# 
+# #now I have to change p1 and p2 so I can merge these dataframes
+# my_data_for_triangle_2_renamed<-`colnames<-`(my_data_for_triangle_2,c('p2','p1','p3','p4','Comparison','value'))
+# 
+# #and merge them
+# all_data_together<-merge(my_data_for_triangle, my_data_for_triangle_2_renamed, by=c("p1","p2","p3","p4","Comparison"))
+# 
+# #melt df
+# my_triangle_data_to_plot <- all_data_together %>%
+#   pivot_longer(
+#     cols = `value.x`:`value.y`,
+#     names_to = "Comparison2",
+#     values_to = "value2"
+#   )
+# 
+# # Combine identifiers to make it easier to compare - pop1***
+# 
+# my_triangle_data_to_plot$total_comparison <- paste(my_triangle_data_to_plot$Comparison,my_triangle_data_to_plot$Comparison2)
+# 
+# 
+# my_plot_triangle<-ggplot(my_data_for_triangle, aes(x=p1,y = value/1000000,fill=Comparison)) +
+#   geom_bar(position="dodge",stat='identity')+
+#   facet_wrap(~ p2,nrow = 19)+
+#   theme_classic()+
+#   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+#   xlab("Individual B") + ylab("No. of bp (millions)")+
+#   scale_fill_manual(values=c( "red","purple"))+
+#   ylim(0,upper_y)+
+#   theme(plot.title = element_text(hjust = 0.5,size = 10))
+# 
+# ggsave("my_plot_triangle.pdf",my_plot_triangle,width = 12,height = 11)
+# 
+# my_plot_final<-ggplot(my_triangle_data_to_plot, aes(x=p1,y = value2/1000000,fill=total_comparison)) +
+#   geom_bar(stat = "identity", position = "dodge")+
+#   facet_wrap(~ p2,nrow = 19)+
+#   theme_classic()+
+#   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+#   xlab("Individual B") + ylab("No. of bp (millions)")+
+#   scale_fill_manual(values=c( "red","orange",'purple','blue'))+
+#   ylim(0,upper_y)+
+#   theme(plot.title = element_text(hjust = 0.5,size = 10))
+# 
+# ggsave("my_plot_final.pdf",my_plot_final,width = 12,height = 11)
 
-#saving a copy to proof read
 
-write.table(my_data_rearranged,file = './my_data_arranged_df.tsv', sep='\t', col.names = NA)
-
-#melt df
-my_data_to_plot <- my_data_rearranged %>% 
-  pivot_longer(
-    cols = `shared_with_cal`:`shared_with_mello`, 
-    names_to = "Comparison",
-    values_to = "value"
-  )
-
-#use sample list order as levels
-
-my_data_to_plot$p1=factor(my_data_to_plot$p1,levels = sample_list)
-my_data_to_plot$p2=factor(my_data_to_plot$p2,levels = sample_list)
-
-my_plot<-ggplot(my_data_to_plot, aes(x=p1,y = value/1000000,fill=Comparison)) + 
-  geom_bar(position="dodge",stat='identity')+ 
-  facet_wrap(~ p2,nrow = 19)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  xlab("Individual B") + ylab("No. of bp (millions)")+ 
-  scale_fill_manual(values=c( "red","purple"))+
-  ylim(0,upper_y)+
-  theme(plot.title = element_text(hjust = 0.5,size = 10))
-
-ggsave("my_plot.pdf",my_plot,width = 12,height = 11)
-
-# ********** remove half of the data for triangle plot *************
-
-my_data_for_triangle<-my_data_to_plot
-
-
-i<-1
-while (i < nrow(my_data_for_triangle)) {
-  checking_row_col_1<-my_data_for_triangle$p1[i]
-  checking_row_col_2<-my_data_for_triangle$p2[i]
-  
-  j<-1
-  while (j < nrow(my_data_for_triangle)) {
-    print(j)
-    j<-j+1
-    if (checking_row_col_1==my_data_for_triangle$p2[j] & checking_row_col_2==my_data_for_triangle$p1[j]) {
-      #list_to_remove <- append(list_to_remove, j)
-      my_data_for_triangle <- my_data_for_triangle[-c(j), ]
-      break
-    }
-  }
-  i<-i+1
-}
-
-# extract rest of the data form my_data dataframe seperately
-
-install.packages("sqldf")
-require(sqldf)
-
-my_data_for_triangle_2<-sqldf('SELECT * FROM my_data_to_plot EXCEPT SELECT * FROM my_data_for_triangle') 
-
-#now I have to change p1 and p2 so I can merge these dataframes
-my_data_for_triangle_2_renamed<-`colnames<-`(my_data_for_triangle_2,c('p2','p1','p3','p4','Comparison','value'))
-
-#and merge them
-all_data_together<-merge(my_data_for_triangle, my_data_for_triangle_2_renamed, by=c("p1","p2","p3","p4","Comparison")) 
-
-#melt df
-my_triangle_data_to_plot <- all_data_together %>% 
-  pivot_longer(
-    cols = `value.x`:`value.y`, 
-    names_to = "Comparison2",
-    values_to = "value2"
-  )
-
-# Combine identifiers to make it easier to compare - pop1***
-
-my_triangle_data_to_plot$total_comparison <- paste(my_triangle_data_to_plot$Comparison,my_triangle_data_to_plot$Comparison2)
-
-
-my_plot_triangle<-ggplot(my_data_for_triangle, aes(x=p1,y = value/1000000,fill=Comparison)) + 
-  geom_bar(position="dodge",stat='identity')+ 
-  facet_wrap(~ p2,nrow = 19)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  xlab("Individual B") + ylab("No. of bp (millions)")+ 
-  scale_fill_manual(values=c( "red","purple"))+
-  ylim(0,upper_y)+
-  theme(plot.title = element_text(hjust = 0.5,size = 10))
-
-ggsave("my_plot_triangle.pdf",my_plot_triangle,width = 12,height = 11)
-
-my_plot_final<-ggplot(my_triangle_data_to_plot, aes(x=p1,y = value2/1000000,fill=total_comparison)) + 
-  geom_bar(stat = "identity", position = "dodge")+ 
-  facet_wrap(~ p2,nrow = 19)+
-  theme_classic()+
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
-  xlab("Individual B") + ylab("No. of bp (millions)")+ 
-  scale_fill_manual(values=c( "red","orange",'purple','blue'))+
-  ylim(0,upper_y)+
-  theme(plot.title = element_text(hjust = 0.5,size = 10))
-
-ggsave("my_plot_final.pdf",my_plot_final,width = 12,height = 11)
 
 ```
 
