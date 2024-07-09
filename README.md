@@ -512,7 +512,7 @@ for i in combined_chrs_part*; do echo -e "#CHROM\tPOS\tREF\tF_Ghana_WZ_BJE4687_c
 Then I had to rename first 9 files to get rid of '0' at the begining of combination files
 
 ```
-mv file01 file1
+for i in {1..9};do mv combination0${i} combination${i}; done
 ```
 Then I made a directory for outputs
 ```
